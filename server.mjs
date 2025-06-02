@@ -14,10 +14,36 @@ const PORT = process.env.PORT || 3002;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3001';
 const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3002';
 
-// Middleware
+// Middleware - More flexible CORS for development and production
+const allowedOrigins = [
+  FRONTEND_URL,
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+  'https://checkout.coinpayments.net',
+  'https://coinpayments.net'
+];
+
+// If in production, you can add your production frontend URL here
+if (process.env.NODE_ENV === 'production' && process.env.PRODUCTION_FRONTEND_URL) {
+  allowedOrigins.push(process.env.PRODUCTION_FRONTEND_URL);
+}
+
 app.use(cors({
-  origin: [FRONTEND_URL, 'https://checkout.coinpayments.net'],
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      console.log('Allowed origins:', allowedOrigins);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(express.json());
 
