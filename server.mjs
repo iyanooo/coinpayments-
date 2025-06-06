@@ -18,9 +18,12 @@ const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3002';
 const allowedOrigins = [
   FRONTEND_URL,
   'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003',
   'http://127.0.0.1:3001',
   'https://checkout.coinpayments.net',
-  'https://coinpayments.net'
+  'https://coinpayments.net',
+  'https://beecracker.live'  // ✅ Added your production domain
 ];
 
 // If in production, you can add your production frontend URL here
@@ -121,8 +124,8 @@ app.post('/api/payments/create-coinpayments', async (req, res) => {
         }
       ],
       redirects: {
-        returnUrl: `${SERVER_URL}/payment-success`,
-        cancelUrl: `${SERVER_URL}/payment-cancelled`
+        returnUrl: `https://beecracker.live/buy-proxies?payment=success`,  // ✅ Updated to use production URL
+        cancelUrl: `https://beecracker.live/buy-proxies?payment=cancelled`  // ✅ Updated to use production URL
       },
       customData: {
         orderId: orderId,
@@ -223,13 +226,13 @@ app.post('/api/payments/create-coinpayments', async (req, res) => {
   }
 });
 
-// Payment redirect endpoints
+// Payment redirect endpoints - Updated for production
 app.get('/payment-success', (req, res) => {
-  res.redirect(`${FRONTEND_URL}/buy-proxies?payment=success`);
+  res.redirect(`https://beecracker.live/buy-proxies?payment=success`);  // ✅ Updated to production URL
 });
 
 app.get('/payment-cancelled', (req, res) => {
-  res.redirect(`${FRONTEND_URL}/buy-proxies?payment=cancelled`);
+  res.redirect(`https://beecracker.live/buy-proxies?payment=cancelled`);  // ✅ Updated to production URL
 });
 
 // CoinPayments V2 webhook endpoint  
@@ -370,4 +373,5 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Payment server running on http://localhost:${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log('Allowed CORS origins:', allowedOrigins);
 }); 
